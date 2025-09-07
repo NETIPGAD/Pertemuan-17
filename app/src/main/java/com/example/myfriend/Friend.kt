@@ -9,5 +9,6 @@ data class Friend(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val name: String,
     val school: String,
-    val photoUri: String?
+    val photoUri: String?,
+    val bio: String
 )

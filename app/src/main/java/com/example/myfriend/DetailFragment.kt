@@ -3,6 +3,9 @@ package com.example.myfriend
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -27,6 +30,7 @@ class DetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDetailBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -43,31 +47,43 @@ class DetailFragment : Fragment() {
                 friend?.let {
                     binding.tvName.text = it.name
                     binding.tvSchool.text = it.school
+                    binding.tvBio.text = it.bio ?: "Bio tidak tersedia"
                     binding.ivPhoto.load(it.photoUri ?: R.drawable.placeholder)
                 }
             }
         }
+    }
 
-        binding.btnEdit.setOnClickListener {
-            val action = DetailFragmentDirections.actionDetailFragmentToEditFriendFragment(args.friendId)
-            findNavController().navigate(action)
-        }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_detail, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
 
-        binding.btnDelete.setOnClickListener {
-            AlertDialog.Builder(requireContext())
-                .setTitle("Konfirmasi Hapus")
-                .setMessage("Hapus teman ini?")
-                .setPositiveButton("Ya") { _, _ ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val friend = db.friendDao().getAll().find { it.id == args.friendId }
-                        friend?.let { db.friendDao().delete(it) }
-                        requireActivity().runOnUiThread {
-                            findNavController().popBackStack()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_edit -> {
+                val action = DetailFragmentDirections.actionDetailFragmentToEditFriendFragment(args.friendId)
+                findNavController().navigate(action)
+                true
+            }
+            R.id.action_delete -> {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Konfirmasi Hapus")
+                    .setMessage("Hapus teman ini?")
+                    .setPositiveButton("Ya") { _, _ ->
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val friend = db.friendDao().getAll().find { it.id == args.friendId }
+                            friend?.let { db.friendDao().delete(it) }
+                            withContext(Dispatchers.Main) {
+                                findNavController().popBackStack()
+                            }
                         }
                     }
-                }
-                .setNegativeButton("Tidak", null)
-                .show()
+                    .setNegativeButton("Tidak", null)
+                    .show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

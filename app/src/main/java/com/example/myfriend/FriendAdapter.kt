@@ -18,8 +18,8 @@ class FriendAdapter(private val onClick: (Friend) -> Unit) :
         fun bind(friend: Friend) {
             binding.tvName.text = friend.name
             binding.tvSchool.text = friend.school
-            binding.ivPhoto.load(friend.photoUri ?: R.drawable.placeholder) {
-                placeholder(R.drawable.placeholder)
+            binding.ivPhoto.load(friend.photoUri ?: R.drawable.ic_person) {
+                placeholder(R.drawable.ic_person)
             }
             binding.root.setOnClickListener { onClick(friend) }
         }

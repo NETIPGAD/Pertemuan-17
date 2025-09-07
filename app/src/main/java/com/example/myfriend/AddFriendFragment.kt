@@ -6,6 +6,9 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,6 +68,7 @@ class AddFriendFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddFriendBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -78,38 +82,51 @@ class AddFriendFragment : Fragment() {
         binding.btnPhoto.setOnClickListener {
             checkPermissionsAndShowDialog()
         }
+    }
 
-        binding.btnSave.setOnClickListener {
-            val name = binding.etName.text.toString()
-            val school = binding.etSchool.text.toString()
-            if (name.isNotBlank() && school.isNotBlank()) {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Konfirmasi")
-                    .setMessage("Simpan teman baru?")
-                    .setPositiveButton("Ya") { _, _ ->
-                        CoroutineScope(Dispatchers.IO).launch {
-                            db.friendDao().insert(
-                                Friend(
-                                    id = UUID.randomUUID().toString(),
-                                    name = name,
-                                    school = school,
-                                    photoUri = photoUri?.toString()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_add_friiend, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_save -> {
+                val name = binding.etName.text.toString()
+                val school = binding.etSchool.text.toString()
+                val bio = binding.etBio.text.toString()
+                if (name.isNotBlank() && school.isNotBlank()) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Konfirmasi")
+                        .setMessage("Simpan teman baru?")
+                        .setPositiveButton("Ya") { _, _ ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                db.friendDao().insert(
+                                    Friend(
+                                        id = UUID.randomUUID().toString(),
+                                        name = name,
+                                        school = school,
+                                        bio = bio,
+                                        photoUri = photoUri?.toString()
+                                    )
                                 )
-                            )
-                            withContext(Dispatchers.Main) {
-                                findNavController().popBackStack()
+                                withContext(Dispatchers.Main) {
+                                    findNavController().popBackStack()
+                                }
                             }
                         }
-                    }
-                    .setNegativeButton("Tidak", null)
-                    .show()
-            } else {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Input Tidak Valid")
-                    .setMessage("Nama dan sekolah harus diisi.")
-                    .setPositiveButton("OK", null)
-                    .show()
+                        .setNegativeButton("Tidak", null)
+                        .show()
+                } else {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Input Tidak Valid")
+                        .setMessage("Nama dan sekolah harus diisi.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -129,7 +146,7 @@ class AddFriendFragment : Fragment() {
         val items = mutableListOf("Galeri")
         val cameraIntent = android.content.Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
         if (cameraIntent.resolveActivity(requireContext().packageManager) != null) {
-            items.add(0, "Kamera") // Tambahkan "Kamera" di urutan pertama jika tersedia
+            items.add(0, "Kamera")
         }
 
         AlertDialog.Builder(requireContext())

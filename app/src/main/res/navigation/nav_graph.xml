@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/welcomeFragment">
 
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.example.myfriend.WelcomeFragment"
-        android:label="Welcome">
+        android:label="Welcome"
+        tools:layout="@layout/fragment_welcome">
         <action
             android:id="@+id/action_welcomeFragment_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -18,46 +20,77 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.myfriend.HomeFragment"
-        android:label="Daftar Teman">
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_addFriendFragment"
-            app:destination="@id/addFriendFragment" />
+            app:destination="@id/addFriendFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_homeFragment_to_detailFragment"
-            app:destination="@id/detailFragment">
+            app:destination="@id/detailFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false">
             <argument
                 android:name="friendId"
-                app:argType="string" />
+                app:argType="string"
+                android:defaultValue="" />
         </action>
     </fragment>
 
     <fragment
         android:id="@+id/addFriendFragment"
         android:name="com.example.myfriend.AddFriendFragment"
-        android:label="Tambah Teman" />
+        android:label="Add Friend"
+        tools:layout="@layout/fragment_add_friend">
+        <action
+            android:id="@+id/action_addFriendFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.example.myfriend.DetailFragment"
-        android:label="Detail Teman">
+        android:label="Detail"
+        tools:layout="@layout/fragment_detail">
         <argument
             android:name="friendId"
-            app:argType="string" />
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_detailFragment_to_editFriendFragment"
-            app:destination="@id/editFriendFragment">
+            app:destination="@id/editFriendFragment"
+            app:popUpTo="@id/detailFragment"
+            app:popUpToInclusive="false">
             <argument
                 android:name="friendId"
-                app:argType="string" />
+                app:argType="string"
+                android:defaultValue="" />
         </action>
+        <action
+            android:id="@+id/action_detailFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
         android:id="@+id/editFriendFragment"
         android:name="com.example.myfriend.EditFriendFragment"
-        android:label="Edit Teman">
+        android:label="Edit Friend"
+        tools:layout="@layout/fragment_edit_friend">
         <argument
             android:name="friendId"
-            app:argType="string" />
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_editFriendFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
     </fragment>
+
 </navigation>

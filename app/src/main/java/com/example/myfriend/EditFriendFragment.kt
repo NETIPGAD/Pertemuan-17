@@ -6,6 +6,9 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
@@ -66,6 +69,7 @@ class EditFriendFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEditFriendBinding.inflate(inflater, container, false)
+        setHasOptionsMenu(true)
         return binding.root
     }
 
@@ -82,6 +86,7 @@ class EditFriendFragment : Fragment() {
                 friend?.let {
                     binding.etName.setText(it.name)
                     binding.etSchool.setText(it.school)
+                    binding.etBio.setText(it.bio)
                     binding.ivPhoto.load(it.photoUri ?: R.drawable.placeholder) {
                         placeholder(R.drawable.placeholder)
                         error(R.drawable.placeholder)
@@ -94,34 +99,46 @@ class EditFriendFragment : Fragment() {
         binding.btnPhoto.setOnClickListener {
             checkPermissionsAndShowDialog()
         }
+    }
 
-        binding.btnSave.setOnClickListener {
-            val name = binding.etName.text.toString()
-            val school = binding.etSchool.text.toString()
-            if (name.isNotBlank() && school.isNotBlank()) {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Konfirmasi")
-                    .setMessage("Simpan perubahan?")
-                    .setPositiveButton("Ya") { _, _ ->
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val friend = db.friendDao().getAll().find { it.id == args.friendId }
-                            friend?.let {
-                                db.friendDao().update(it.copy(name = name, school = school, photoUri = photoUri?.toString()))
-                                withContext(Dispatchers.Main) {
-                                    findNavController().popBackStack()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_add_friiend, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_save -> {
+                val name = binding.etName.text.toString()
+                val school = binding.etSchool.text.toString()
+                val bio = binding.etBio.text.toString()
+                if (name.isNotBlank() && school.isNotBlank()) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Konfirmasi")
+                        .setMessage("Simpan perubahan?")
+                        .setPositiveButton("Ya") { _, _ ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val friend = db.friendDao().getAll().find { it.id == args.friendId }
+                                friend?.let {
+                                    db.friendDao().update(it.copy(name = name, school = school, bio = bio, photoUri = photoUri?.toString()))
+                                    withContext(Dispatchers.Main) {
+                                        findNavController().popBackStack()
+                                    }
                                 }
                             }
                         }
-                    }
-                    .setNegativeButton("Tidak", null)
-                    .show()
-            } else {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Input Tidak Valid")
-                    .setMessage("Nama dan sekolah harus diisi.")
-                    .setPositiveButton("OK", null)
-                    .show()
+                        .setNegativeButton("Tidak", null)
+                        .show()
+                } else {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Input Tidak Valid")
+                        .setMessage("Nama dan sekolah harus diisi.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -141,7 +158,7 @@ class EditFriendFragment : Fragment() {
         val items = mutableListOf("Galeri")
         val cameraIntent = android.content.Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
         if (cameraIntent.resolveActivity(requireContext().packageManager) != null) {
-            items.add(0, "Kamera") // Tambahkan "Kamera" di urutan pertama jika tersedia
+            items.add(0, "Kamera")
         }
 
         AlertDialog.Builder(requireContext())

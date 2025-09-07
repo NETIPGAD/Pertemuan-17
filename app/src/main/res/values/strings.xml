@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">myfriend</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="edit_button_description">Edit item</string>
+    <string name="delete_button_description">Delete item</string>
 </resources>

@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.Room
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myfriend.databinding.FragmentHomeBinding
+import androidx.room.Room
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +41,7 @@ class HomeFragment : Fragment() {
             findNavController().navigate(action)
         }
         binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = GridLayoutManager(context, 2) // Mengubah ke GridLayoutManager dengan 2 kolom
             adapter = friendAdapter
         }
 
